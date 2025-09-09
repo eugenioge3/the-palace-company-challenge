@@ -6,3 +6,4 @@ openpyxl
 sqlalchemy
 PyMySQL
 cryptography
+numpy
