@@ -1,0 +1,6 @@
+exercise_1_etl_pipeline/.env
+exercise_1_etl_pipeline/dagster_home/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
