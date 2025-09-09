@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from dagster import asset, DagsterInvariantViolationError, AssetIn
 from sqlalchemy import text
 
@@ -25,42 +26,53 @@ def user_relationships_table(context):
         conn.execute(text(create_table_query))
 
     excel_path = "/opt/dagster/app/data/relaciones.xlsx"
-    context.log.info(f"Leyendo la matriz desde {excel_path}")
+    sheet_name = "Matriz de adyacencia"
+    context.log.info(f"Leyendo la matriz desde la hoja: '{sheet_name}'")
 
     try:
-        excel_file = pd.ExcelFile(excel_path)
-        sheet_names = excel_file.sheet_names
-        preferred_sheet_name = "Matriz de adyacencia"
-        sheet_to_load = sheet_names[0] if preferred_sheet_name not in sheet_names else preferred_sheet_name
 
-        if sheet_to_load != preferred_sheet_name:
-            context.log.warning(f"Hoja '{preferred_sheet_name}' no encontrada. Usando la primera: '{sheet_to_load}'.")
-        else:
-            context.log.info(f"Cargando desde la hoja: '{sheet_to_load}'.")
+        # 1. Lee la hoja entera sin asumir estructura.
+        df_raw = pd.read_excel(excel_path, sheet_name=sheet_name, header=None)
+        
+        # 2. Extrae la lista de todos los IDs numéricos válidos de la primera columna (columna A).
+        all_ids = pd.to_numeric(df_raw.iloc[2:, 0], errors='coerce').dropna().astype(int)
 
-        df_matrix_raw = pd.read_excel(excel_path, sheet_name=sheet_to_load, header=1, index_col=0)
+        # 3. Extrae solo el bloque de datos numéricos (desde la celda C3 en adelante).
+        data_block = df_raw.iloc[2:, 2:].copy()
+        
+        # 4. Crea una matriz cuadrada vacía, usando all_ids para el índice y las columnas.
+        df_matrix = pd.DataFrame(index=all_ids, columns=all_ids)
+        
+        # 5. Rellena la matriz cuadrada con los datos del Excel.
+        # Recorta los datos y los índices para que coincidan en tamaño
+        valid_rows = all_ids[:len(data_block)]
+        valid_cols = all_ids[:len(data_block.columns)]
+        
+        # Asigna los datos a la subsección correspondiente de la matriz cuadrada.
+        df_matrix.loc[valid_rows, valid_cols] = data_block.values
+
+        # 6. Convierte toda la matriz a tipo numérico para estandarizarla.
+        df_matrix = df_matrix.apply(pd.to_numeric, errors='coerce')
+
     except Exception as e:
-        raise DagsterInvariantViolationError(f"Error al leer la hoja de la matriz. Error: {e}")
+        raise DagsterInvariantViolationError(
+            f"Error al leer o procesar la hoja '{sheet_name}'. "
+            f"Revisa la estructura del archivo. Error: {e}"
+        )
 
-    df_matrix = df_matrix_raw.drop(columns=df_matrix_raw.columns[0])
-    df_matrix.columns = df_matrix.index
+    context.log.info(f"Matriz procesada. Forma final: {df_matrix.shape}")
+    
+    context.log.info("Transformando matriz a lista de relaciones...")
+    
+    stacked = df_matrix.stack()
+    relationships_series = stacked[stacked == 1]
+    
+    relationships_df = relationships_series.index.to_frame(index=False, name=["person_a", "person_b"])
+    relationships_df = relationships_df[relationships_df['person_a'] != relationships_df['person_b']]
+    
+    sorted_pairs = np.sort(relationships_df.values, axis=1)
+    final_df = pd.DataFrame(sorted_pairs, columns=["person_a", "person_b"]).drop_duplicates()
 
-    if not df_matrix.index.equals(df_matrix.columns):
-        raise DagsterInvariantViolationError("Error de consistencia: Índices de filas y columnas no son idénticos.")
-    
-    context.log.info(f"Matriz procesada. Forma: {df_matrix.shape}")
-
-    relationships = []
-    persons = df_matrix.index.tolist()
-    
-    for person_a in persons:
-        for person_b in persons:
-            if df_matrix.loc[person_a, person_b] == 1 and person_a != person_b:
-                sorted_pair = tuple(sorted((person_a, person_b)))
-                if sorted_pair not in relationships:
-                    relationships.append(sorted_pair)
-    
-    final_df = pd.DataFrame(relationships, columns=["person_a", "person_b"])
     context.log.info(f"Se encontraron {len(final_df)} relaciones únicas.")
 
     with engine.connect() as conn:
@@ -70,7 +82,7 @@ def user_relationships_table(context):
                 final_df.to_sql(table_name, con=conn, if_exists="append", index=False)
             context.log.info(f"Tabla '{table_name}' actualizada con {len(final_df)} registros.")
     
-    return table_name # Devolvemos el nombre de la tabla para que otros assets puedan usarlo
+    return table_name
 
 # --- ASSET 2: Tabla de Actores (actors) ---
 @asset(
