@@ -1,5 +1,5 @@
-exercise_1_etl_pipeline/.env
 exercise_1_etl_pipeline/dagster_home/
+exercise_3_etl_pipeline/.venv/
 __pycache__/
 *.pyc
 *.pyo
