@@ -40,6 +40,10 @@ Este comando construirá las imágenes de Docker, iniciará los contenedores de 
   ```
   *(Si obtienes un error de permisos en Linux/macOS, primero ejecuta: `chmod +x *.sh`)*
 
+Resultado esperado:
+
+![Start](./docs/images/07-start.PNG)
+
 ### 2. Ingesta de Datos
 
 Una vez que el entorno esté corriendo, ejecuta este script para cargar los datos del archivo `data/sample.csv` en la base de datos.
@@ -52,6 +56,9 @@ Una vez que el entorno esté corriendo, ejecuta este script para cargar los dato
   ```bash
   ./ingest.sh
   ```
+Resultado esperado:
+
+![Ingestion](./docs/images/06-ingestion.PNG)
 
 ### 3. Ejecutar las Pruebas
 
@@ -65,17 +72,9 @@ Para verificar la integridad y el correcto funcionamiento de la API, puedes ejec
   ```bash
   ./test.sh
   ```
+Resultado esperado:
 
 ![Unit Tests](./docs/images/05-unit-tests.PNG)
-
-### 4. Detener el Entorno
-
-Para detener y eliminar todos los contenedores asociados al proyecto.
-
-```bash
-docker-compose down
-```
-*(Si también deseas eliminar el volumen de datos de la base de datos, usa `docker-compose down -v`)*
 
 ## Cómo Probar la API (Swagger UI)
 
@@ -110,6 +109,16 @@ Modifica los datos de un contacto existente.
 ![Update Contact 1](./docs/images/04-1-put-contact.PNG)
 
 ![Update Contact 2](./docs/images/04-2-put-contact.PNG)
+
+
+### Detener el Entorno
+
+Para detener y eliminar todos los contenedores asociados al proyecto.
+
+```bash
+docker-compose down
+```
+*(Si también deseas eliminar el volumen de datos de la base de datos, usa `docker-compose down -v`)*
 
 ## Decisiones de Diseño y Mejoras Futuras
 
