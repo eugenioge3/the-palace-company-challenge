@@ -6,6 +6,7 @@ from diagrams.aws.analytics import AmazonOpensearchService
 from diagrams.aws.storage import S3
 from diagrams.aws.security import WAF
 from diagrams.aws.ml import Personalize, Sagemaker, Lex
+from diagrams.aws.management import Cloudwatch # <-- 1. IMPORTAMOS CLOUDWATCH
 from diagrams.onprem.client import User
 
 # Define el nombre del archivo de salida y la ruta relativa
@@ -13,7 +14,6 @@ output_filename = "docs/architecture/images/arquitectura_hotelera"
 
 with Diagram("Arquitectura Hotelera con IA", show=False, filename=output_filename, graph_attr={"bgcolor": "transparent"}):
     
-    # Creamos un nodo User
     user = User("Huésped Web/Móvil")
 
     with Cluster("AWS Cloud"):
@@ -22,20 +22,29 @@ with Diagram("Arquitectura Hotelera con IA", show=False, filename=output_filenam
         cdn = CloudFront("CloudFront CDN")
         api_gw = APIGateway("API Gateway")
         
-        # Conexión de entrada (Ahora funcionará)
         user >> waf >> cdn >> api_gw
 
         # Microservicios en ECS/Fargate
         with Cluster("Microservicios (ECS Fargate)"):
-            svc_search = ECS("Servicio Búsqueda")
-            svc_display = ECS("Servicio Visualización")
-            svc_guest = ECS("Servicio Huéspedes")
-            svc_payment = ECS("Servicio Pagos")
-            
-            api_gw >> Edge(label="/search") >> svc_search
-            api_gw >> Edge(label="/hotels") >> svc_display
-            api_gw >> Edge(label="/guest") >> svc_guest
-            api_gw >> Edge(label="/payment") >> svc_payment
+            services_group = [
+                ECS("Servicio Búsqueda"),
+                ECS("Servicio Visualización"),
+                ECS("Servicio Huéspedes"),
+                ECS("Servicio Pagos")
+            ]
+        
+        # Capa de Monitoreo
+        with Cluster("Monitoreo y Operaciones"): # <-- 2. AÑADIMOS UN CLUSTER PARA MONITOREO
+            cw = Cloudwatch("CloudWatch\n(Logs, Métricas, Alertas)")
+
+        # Conexiones principales
+        api_gw >> Edge(label="/search") >> services_group[0]
+        api_gw >> Edge(label="/hotels") >> services_group[1]
+        api_gw >> Edge(label="/guest") >> services_group[2]
+        api_gw >> Edge(label="/payment") >> services_group[3]
+        
+        # Conexión conceptual de monitoreo a los servicios
+        cw >> Edge(style="dotted", color="firebrick") >> services_group # <-- 3. CONECTAMOS CLOUDWATCH
 
         # Capa de Datos
         with Cluster("Capa de Datos"):
@@ -51,13 +60,14 @@ with Diagram("Arquitectura Hotelera con IA", show=False, filename=output_filenam
             ai_sagemaker = Sagemaker("SageMaker Endpoint\nDynamic Pricing")
 
         # Conexiones de los servicios
-        svc_search >> db_opensearch
-        svc_display >> db_aurora
-        svc_display >> storage_s3
-        svc_guest >> db_cache
-        svc_guest >> db_aurora
-        svc_payment >> db_aurora
-        svc_display >> Edge(color="darkgreen") >> ai_personalize
-        svc_display >> Edge(color="darkgreen") >> ai_sagemaker
+        services_group[0] >> db_opensearch
+        services_group[1] >> db_aurora
+        services_group[1] >> storage_s3
+        services_group[2] >> db_cache
+        services_group[2] >> db_aurora
+        services_group[3] >> db_aurora
+        
+        services_group[1] >> Edge(color="darkgreen") >> ai_personalize
+        services_group[1] >> Edge(color="darkgreen") >> ai_sagemaker
         api_gw >> Edge(label="Chatbot", color="darkgreen") >> ai_lex
-        svc_guest >> Edge(color="darkgreen", style="dashed") >> ai_personalize
+        services_group[2] >> Edge(color="darkgreen", style="dashed") >> ai_personalize
