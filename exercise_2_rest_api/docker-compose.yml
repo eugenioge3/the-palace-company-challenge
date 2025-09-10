@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. El servicio de la Base de Datos (Postgres)
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: techtest_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # 2. El servicio que simula el servidor con los datos (Python en lugar de CentOS)
+  ingestor:
+    build:
+      context: ./data
+    depends_on:  # no ejecutarse antes de que la base de datos esté lista.
+      - db
+    networks:
+      - app-network
+     # Le pasamos la URL de la base de datos como variable de entorno
+    environment:
+      DATABASE_URL: "postgresql://user:password@db/techtest_db"
+
+  # 3. El servicio para nuestra API REST
+  api:
+    build:
+      # creamos nueva carpeta /api
+      context: ./api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # URL de conexión a la base de datos como variable de entorno
+      DATABASE_URL: "postgresql://user:password@db/techtest_db"
+    depends_on:
+      - db # La API no arrancará hasta que la base de datos esté lista
+    networks:
+      - app-network
+
+# La red que permite la comunicación
+networks:
+  app-network:
+    driver: bridge
+
+# Un volumen para que los datos de Postgres no se pierdan si se reinicia el contenedor
+volumes:
+  postgres_data:
