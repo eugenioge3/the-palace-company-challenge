@@ -1,4 +1,4 @@
-# Tech Test: API de Contactos e Ingesta de Datos
+# API de Contactos e Ingesta de Datos
 
 Este proyecto es una solución completa para ingerir datos desde un archivo CSV, almacenarlos en una base de datos PostgreSQL y exponerlos a través de una API RESTful robusta, probada y automatizada.
 
@@ -7,7 +7,7 @@ El sistema está completamente contenedorizado con Docker para garantizar la por
 ## Características Clave
 
 * **API RESTful:** Desarrollada con FastAPI, ofreciendo alto rendimiento y documentación interactiva automática (Swagger UI).
-* **Base de Datos Relacional:** Esquema diseñado en PostgreSQL con una relación many-to-many para manejar correctamente los datos.
+*   **Base de Datos Relacional:** Esquema diseñado en PostgreSQL utilizando el `email` como identificador único de contacto. Al detectar que una misma persona podía pertenecer a múltiples departamentos en los datos de origen, se implementó una relación **many-to-many** (con una tabla de unión) para modelar esta realidad sin duplicar la información del contacto.
 * **Proceso de Ingesta Robusto:** Un script de Python (ETL) que valida, transforma y carga los datos, capaz de manejar condiciones de carrera al esperar a que la base de datos esté lista.
 * **Validación de Datos:** Reglas estrictas a nivel de API (con Pydantic) y a nivel de base de datos para garantizar la integridad de los datos.
 * **Entorno Contenerizado:** Todos los servicios (API, Base de Datos, Tarea de Ingesta) están definidos en `docker-compose.yml`, permitiendo un levantamiento completo con un solo comando.
@@ -19,6 +19,12 @@ El sistema está completamente contenedorizado con Docker para garantizar la por
 **Requisitos:**
 * Docker
 * Docker Compose
+*   **El servicio de Docker Desktop debe estar corriendo.**
+
+**Instrucciones:**
+1.  Clona este repositorio en tu máquina local.
+2.  Abre una terminal (CMD, PowerShell o Git Bash en Windows; Terminal en macOS/Linux).
+3.  **Navega hasta la raíz de este proyecto**, el directorio `exercise_2_rest_api`. Todos los comandos deben ejecutarse desde esta ubicación.
 
 ### 1. Levantar el Entorno
 
