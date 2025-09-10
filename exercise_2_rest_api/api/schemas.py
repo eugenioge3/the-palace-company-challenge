@@ -9,8 +9,8 @@ class Department(BaseModel):
 
 # Schema base para Contacto
 class ContactBase(BaseModel):
-    first_name: str
-    last_name: str
+    first_name: constr(min_length=1)
+    last_name: constr(min_length=1)
     email: EmailStr
     company_name: Optional[str] = None
     address: Optional[str] = None

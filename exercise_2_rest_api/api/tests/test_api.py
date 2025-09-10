@@ -76,3 +76,54 @@ def test_update_contact(client):
     assert data["first_name"] == "Updated"
     assert data["last_name"] == "Successfully"
     assert len(data["departments"]) == 2
+
+def test_create_contact_invalid_state(client):
+    """Prueba que la API rechace un 'state' con una longitud incorrecta."""
+    response = client.post(
+        "/contacts/",
+        json={
+            "first_name": "Invalid",
+            "last_name": "State",
+            "email": "badstate@example.com",
+            "state": "CAL", # <-- DATO INVÁLIDO
+            "departments": []
+        },
+    )
+    assert response.status_code == 422
+    data = response.json()
+    assert "state" in data["detail"][0]["loc"]
+    assert "String should have at most 2 characters" in data["detail"][0]["msg"]
+
+def test_create_contact_invalid_email(client):
+    """Prueba que la API rechace un email con formato incorrecto."""
+    response = client.post(
+        "/contacts/",
+        json={
+            "first_name": "Invalid",
+            "last_name": "Email",
+            "email": "bademail-example.com", # <-- DATO INVÁLIDO
+            "state": "FL",
+            "departments": []
+        },
+    )
+    assert response.status_code == 422
+    data = response.json()
+    assert "email" in data["detail"][0]["loc"]
+    assert "value is not a valid email address" in data["detail"][0]["msg"]
+
+def test_create_contact_empty_first_name(client):
+    """Prueba que la API rechace un 'first_name' vacío."""
+    response = client.post(
+        "/contacts/",
+        json={
+            "first_name": "", # <-- DATO INVÁLIDO
+            "last_name": "User",
+            "email": "empty@example.com",
+            "state": "TX",
+            "departments": []
+        },
+    )
+    assert response.status_code == 422
+    data = response.json()
+    assert "first_name" in data["detail"][0]["loc"]
+    assert "String should have at least 1 character" in data["detail"][0]["msg"]
