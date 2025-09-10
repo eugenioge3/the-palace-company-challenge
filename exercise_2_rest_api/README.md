@@ -14,7 +14,7 @@ El sistema está completamente contenedorizado con Docker para garantizar la por
 * **Suite de Pruebas Automatizadas:** Pruebas de integración para los endpoints de la API utilizando `pytest`, con un reporte de cobertura de código que demuestra la calidad del software.
 * **Automatización de Tareas:** Scripts de ayuda (`.sh` y `.bat`) para simplificar el flujo de trabajo de desarrollo, ingesta y pruebas.
 
-## Inicio Rápido (Quick Start)
+## Quick Start
 
 **Requisitos:**
 * Docker
@@ -60,6 +60,8 @@ Para verificar la integridad y el correcto funcionamiento de la API, puedes ejec
   ./test.sh
   ```
 
+![Create Contact 1](.docs/images/05-unit-tests.png)
+
 ### 4. Detener el Entorno
 
 Para detener y eliminar todos los contenedores asociados al proyecto.
@@ -79,35 +81,35 @@ Una vez que el entorno está corriendo y los datos han sido cargados, puedes int
 
 Obtén una lista paginada de todos los contactos.
 
-![Get Contacts](docs/images/01-get-contacts.png)
+![Get Contacts](.docs/images/01-get-contacts.png)
 
 ### 2. Crear un Nuevo Contacto (POST /contacts/)
 
 Añade un nuevo contacto a la base de datos. La API es capaz de crear nuevos departamentos sobre la marcha si no existen.
 
-![Create Contact 1](docs/images/02-1-create.contact.png)
+![Create Contact 1](.docs/images/02-1-create-contact.png)
 
-![Create Contact 2](docs/images/02-2-create.contact.png)
+![Create Contact 2](.docs/images/02-2-create-contact.png)
 
 ### 3. Leer un Contacto Específico (GET /contacts/{contact_id})
 
 Obtén los detalles de un solo contacto usando su ID.
 
-![Get Contact by ID](docs/images/03-get-contact-by-id.png)
+![Get Contact by ID](.docs/images/03-get-contact-by-id.png)
 
 ### 4. Actualizar un Contacto (PUT /contacts/{contact_id})
 
 Modifica los datos de un contacto existente.
 
-![Update Contact 1](docs/images/04-1-put-contact.png)
+![Update Contact 1](.docs/images/04-1-put-contact.png)
 
-![Update Contact 2](docs/images/04-2-put-contact.png)
+![Update Contact 2](.docs/images/04-2-put-contact.png)
 
 ## Decisiones de Diseño y Mejoras Futuras
 
 Este proyecto implementa varias de las funcionalidades opcionales y está preparado para futuras mejoras.
 
-### ✅ Gestión del Esquema (Migraciones)
+### Gestión del Esquema (Migraciones)
 
 **Implementación Futura:**
 El proyecto actualmente no está preparado para usar Alembic para la gestión de migraciones de base de datos. Se utilizaría (`Base.metadata.create_all`) para la creación automática de tablas
@@ -115,11 +117,11 @@ El proyecto actualmente no está preparado para usar Alembic para la gestión de
 * **Crear Migraciones:** Usar `alembic revision --autogenerate` para generar scripts de migración basados en los cambios en `api/models.py`.
 * **Aplicar Migraciones:** Ejecutar `alembic upgrade head` como un paso explícito del despliegue para crear o actualizar el esquema de la base de datos de forma controlada y versionada.
 
-### ✅ Pruebas Unitarias y Cobertura
+### Unit Testing
 
 El proyecto incluye una suite de pruebas de integración con `pytest` que verifica todos los endpoints de la API, incluyendo casos de éxito y de validación de errores. Las pruebas se ejecutan contra una base de datos SQLite en memoria para garantizar el aislamiento y la velocidad. El reporte de cobertura de código demuestra una alta calidad y fiabilidad del software.
 
-### ✅ CI/CD (Integración y Despliegue Continuo)
+### CI/CD
 
 Aunque no está implementado, el proyecto está diseñado para integrarse fácilmente en un flujo de CI/CD.
 
