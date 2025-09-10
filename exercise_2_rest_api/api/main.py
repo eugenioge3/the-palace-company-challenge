@@ -6,17 +6,15 @@ from typing import List
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 
-# Esto crea las tablas en la base de datos la primera vez que arranca la API
+# Crear las tablas en la base de datos la primera vez que arranca la API
 models.Base.metadata.create_all(bind=engine)
 
-# 1. Definimos el DDL (Data Definition Language) como un string.
-#    Este es el comando SQL exacto para AÑADIR la constraint a una tabla existente.
+# 1. Definimos el DDL (Data Definition Language) como un string. Comando SQL para AÑADIR la constraint a una tabla existente.
 add_constraint_ddl = DDL(
     "ALTER TABLE contacts ADD CONSTRAINT state_check_postgres CHECK (state ~ '^[A-Z]{2}$')"
 )
 
-# 2. Adjuntamos el evento para que se ejecute DESPUÉS de crear la tabla contacts,
-#    y SOLAMENTE si el dialecto es postgresql.
+# 2. Adjuntamos el evento para que se ejecute DESPUÉS de crear la tabla contacts y solo postgresql.
 event.listen(
     models.Contact.__table__,
     'after_create',

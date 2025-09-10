@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from .database import Base
 
-# Tabla de Unión para la relación Muchos-a-Muchos
+# Tabla de Unión para la relación Many-to-Many
 contact_department_association = Table(
     'contact_department_association', Base.metadata,
     Column('contact_id', Integer, ForeignKey('contacts.id'), primary_key=True),

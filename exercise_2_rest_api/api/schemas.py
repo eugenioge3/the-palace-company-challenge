@@ -23,12 +23,11 @@ class ContactBase(BaseModel):
 
 # Schema para crear un Contacto (puede recibir una lista de departamentos)
 class ContactCreate(ContactBase):
-    # El departamento ahora es una lista de strings
+    # departamento como lista de strings
     departments: List[str] = []
 
 # Schema para la respuesta de la API
 class Contact(ContactBase):
     id: int
-    # La respuesta incluye una lista de objetos Department
     departments: List[Department] = []
     model_config = ConfigDict(from_attributes=True)
