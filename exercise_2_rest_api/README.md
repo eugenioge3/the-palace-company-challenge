@@ -1,4 +1,4 @@
-# Tech Test: API de Contactos e Ingesta de Datos
+# API de Contactos e Ingesta de Datos
 
 Este proyecto es una solución completa para ingerir datos desde un archivo CSV, almacenarlos en una base de datos PostgreSQL y exponerlos a través de una API RESTful robusta, probada y automatizada.
 
@@ -7,7 +7,7 @@ El sistema está completamente contenedorizado con Docker para garantizar la por
 ## Características Clave
 
 * **API RESTful:** Desarrollada con FastAPI, ofreciendo alto rendimiento y documentación interactiva automática (Swagger UI).
-* **Base de Datos Relacional:** Esquema diseñado en PostgreSQL con una relación many-to-many para manejar correctamente los datos.
+*   **Base de Datos Relacional:** Esquema diseñado en PostgreSQL utilizando el `email` como identificador único de contacto. Al detectar que una misma persona podía pertenecer a múltiples departamentos en los datos de origen, se implementó una relación **many-to-many** (con una tabla de unión) para modelar esta realidad sin duplicar la información del contacto.
 * **Proceso de Ingesta Robusto:** Un script de Python (ETL) que valida, transforma y carga los datos, capaz de manejar condiciones de carrera al esperar a que la base de datos esté lista.
 * **Validación de Datos:** Reglas estrictas a nivel de API (con Pydantic) y a nivel de base de datos para garantizar la integridad de los datos.
 * **Entorno Contenerizado:** Todos los servicios (API, Base de Datos, Tarea de Ingesta) están definidos en `docker-compose.yml`, permitiendo un levantamiento completo con un solo comando.
@@ -19,6 +19,12 @@ El sistema está completamente contenedorizado con Docker para garantizar la por
 **Requisitos:**
 * Docker
 * Docker Compose
+*   **El servicio de Docker Desktop debe estar corriendo.**
+
+**Instrucciones:**
+1.  Clona este repositorio en tu máquina local.
+2.  Abre una terminal (CMD, PowerShell o Git Bash en Windows; Terminal en macOS/Linux).
+3.  **Navega hasta la raíz de este proyecto**, el directorio `exercise_2_rest_api`. Todos los comandos deben ejecutarse desde esta ubicación.
 
 ### 1. Levantar el Entorno
 
@@ -34,6 +40,10 @@ Este comando construirá las imágenes de Docker, iniciará los contenedores de 
   ```
   *(Si obtienes un error de permisos en Linux/macOS, primero ejecuta: `chmod +x *.sh`)*
 
+Resultado esperado:
+
+![Start](./docs/images/07-start.PNG)
+
 ### 2. Ingesta de Datos
 
 Una vez que el entorno esté corriendo, ejecuta este script para cargar los datos del archivo `data/sample.csv` en la base de datos.
@@ -46,6 +56,9 @@ Una vez que el entorno esté corriendo, ejecuta este script para cargar los dato
   ```bash
   ./ingest.sh
   ```
+Resultado esperado:
+
+![Ingestion](./docs/images/06-ingestion.PNG)
 
 ### 3. Ejecutar las Pruebas
 
@@ -59,21 +72,13 @@ Para verificar la integridad y el correcto funcionamiento de la API, puedes ejec
   ```bash
   ./test.sh
   ```
+Resultado esperado:
 
 ![Unit Tests](./docs/images/05-unit-tests.PNG)
 
-### 4. Detener el Entorno
-
-Para detener y eliminar todos los contenedores asociados al proyecto.
-
-```bash
-docker-compose down
-```
-*(Si también deseas eliminar el volumen de datos de la base de datos, usa `docker-compose down -v`)*
-
 ## Cómo Probar la API (Swagger UI)
 
-Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador.
+Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador. **Verifica que estés en el request correcto**, ya que FastAPI genera el esquema/orden. Para cada uno, da click en "Try it out", llena los campos necesarios, y click en "Execute".
 
 **Accede a:** http://localhost:8000/docs
 
@@ -88,7 +93,6 @@ Obtén una lista paginada de todos los contactos.
 Añade un nuevo contacto a la base de datos. La API es capaz de crear nuevos departamentos sobre la marcha si no existen.
 
 ![Create Contact 1](./docs/images/02-1-create-contact.PNG)
-
 ![Create Contact 2](./docs/images/02-2-create-contact.PNG)
 
 ### 3. Leer un Contacto Específico (GET /contacts/{contact_id})
@@ -102,8 +106,17 @@ Obtén los detalles de un solo contacto usando su ID.
 Modifica los datos de un contacto existente.
 
 ![Update Contact 1](./docs/images/04-1-put-contact.PNG)
-
 ![Update Contact 2](./docs/images/04-2-put-contact.PNG)
+
+
+### Detener el Entorno
+
+Para detener y eliminar todos los contenedores asociados al proyecto.
+
+```bash
+docker-compose down
+```
+*(Si también deseas eliminar el volumen de datos de la base de datos, usa `docker-compose down -v`)*
 
 ## Decisiones de Diseño y Mejoras Futuras
 
@@ -139,5 +152,7 @@ Aunque no está implementado, el proyecto está diseñado para integrarse fácil
   * Ejecutaría `docker-compose pull` para descargar las nuevas imágenes.
   * Ejecutaría `alembic upgrade head` para aplicar cualquier migración de base de datos pendiente.
   * Finalmente, ejecutaría `docker-compose up -d` para reiniciar los servicios con la nueva versión del código.
+* **Alertas:**
+    * Es posible enviar alertas [INFO], [WARNING] o [ERROR] a diferentes servicios como Slack, PagerDuty, Correos o a un webhook custom si se requiere.
 
 Este flujo de trabajo automatizaría por completo el proceso de prueba y despliegue, reduciendo el riesgo de errores manuales y acelerando la entrega de nuevas funcionalidades.
