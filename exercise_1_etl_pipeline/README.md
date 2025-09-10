@@ -21,7 +21,7 @@ El proceso se puede resumir en los siguientes pasos:
 - **Lenguaje de Programación:** Python 3.9
 - **Librerías Clave:** Pandas, NumPy, SQLAlchemy
 
-## 🚀 Setup y Ejecución
+## Setup y Ejecución
 
 Sigue estos pasos para configurar y ejecutar el pipeline de ETL en tu entorno local.
 
@@ -91,7 +91,7 @@ ORDER BY person_a_id, person_b_id;
 
 ![Resultado de Query SQL](./docs/images/04-sql-query-result.png)
 
-## 🔍 Notas de Diseño y Decisiones Importantes
+## Notas de Diseño y Decisiones Importantes
 
 Para asegurar la robustez del pipeline, se tomaron varias decisiones clave:
 
@@ -115,7 +115,7 @@ El pipeline crea dos tablas principales y una vista:
 - **`user_relationships`:** Almacena los pares de IDs que tienen una relación.
 - **`v_actor_relationships`:** Una vista que une las dos tablas anteriores para presentar una visión legible de las relaciones.
 
-## 🌟 Punto Opcional y Mejoras Futuras
+## Punto Opcional y Mejoras Futuras
 
 - **Validación de Datos:** Se exploró la implementación de Dagster Asset Checks para validar la calidad de los datos (ej., unicidad de IDs). Aunque se encontró un problema de versionado con el entorno Docker local, esta sigue siendo la mejora más recomendada para un entorno de producción.
 - **Sensor de Archivos:** Se podría implementar un Sensor en Dagster que detecte automáticamente la actualización del archivo `relaciones.xlsx` y lance el pipeline, en lugar de depender únicamente de una ejecución programada.
