@@ -3,7 +3,7 @@ FROM python:3.9-slim
 # Establecemos el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiamos el archivo de requerimientos PRIMERO.
+# Copiamos el archivo de requerimientos
 COPY requirements.txt .
 
 # Instalamos las dependencias

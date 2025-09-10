@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, CheckConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -13,7 +13,6 @@ class Department(Base):
     __tablename__ = "departments"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False, index=True)
-    # La relación ahora usa la tabla de unión y apunta a la lista de contactos
     contacts = relationship(
         "Contact",
         secondary=contact_department_association,
@@ -33,11 +32,9 @@ class Contact(Base):
     zip = Column(String(10))
     phone1 = Column(String(20))
     phone2 = Column(String(20))
-    # La relación ahora usa la tabla de unión y apunta a la lista de departamentos
+    
     departments = relationship(
         "Department",
         secondary=contact_department_association,
         back_populates="contacts"
     )
-    # La validación de 'state' - solo 2 letras
-    __table_args__ = (CheckConstraint("state ~ '^[A-Z]{2}$'", name='state_check'),)
