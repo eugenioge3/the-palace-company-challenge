@@ -1,12 +1,11 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, ConfigDict
 from typing import Optional, List
 
 # Schema para la respuesta del Departamento
 class Department(BaseModel):
     id: int
     name: str
-    class Config:
-        from_attributes = True # Renombrado de orm_mode en Pydantic V2
+    model_config = ConfigDict(from_attributes=True)
 
 # Schema base para Contacto
 class ContactBase(BaseModel):
@@ -32,5 +31,4 @@ class Contact(ContactBase):
     id: int
     # La respuesta incluye una lista de objetos Department
     departments: List[Department] = []
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
