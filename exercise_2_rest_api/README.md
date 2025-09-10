@@ -60,7 +60,7 @@ Para verificar la integridad y el correcto funcionamiento de la API, puedes ejec
   ./test.sh
   ```
 
-![Create Contact 1](.docs/images/05-unit-tests.png)
+![Unit Tests](.docs/images/05-unit-tests.png)
 
 ### 4. Detener el Entorno
 
