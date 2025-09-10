@@ -152,5 +152,7 @@ Aunque no está implementado, el proyecto está diseñado para integrarse fácil
   * Ejecutaría `docker-compose pull` para descargar las nuevas imágenes.
   * Ejecutaría `alembic upgrade head` para aplicar cualquier migración de base de datos pendiente.
   * Finalmente, ejecutaría `docker-compose up -d` para reiniciar los servicios con la nueva versión del código.
+* **Alertas:**
+    * Es posible enviar alertas [INFO], [WARNING] o [ERROR] a diferentes servicios como Slack, PagerDuty, Correos o a un webhook custom si se requiere.
 
 Este flujo de trabajo automatizaría por completo el proceso de prueba y despliegue, reduciendo el riesgo de errores manuales y acelerando la entrega de nuevas funcionalidades.
