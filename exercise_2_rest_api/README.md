@@ -78,7 +78,7 @@ Resultado esperado:
 
 ## Cómo Probar la API (Swagger UI)
 
-Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador.
+Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador. Para cada uno, da click en "Try it out" y llena los campos necesarios.
 
 **Accede a:** http://localhost:8000/docs
 
