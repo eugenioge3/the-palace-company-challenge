@@ -3,7 +3,6 @@ from . import models, schemas
 
 # === Funciones de Lectura (GET) ===
 def get_contact(db: Session, contact_id: int):
-    # Usamos joinedload para cargar eficientemente los departamentos en la misma consulta
     return db.query(models.Contact).options(joinedload(models.Contact.departments)).filter(models.Contact.id == contact_id).first()
 
 def get_contacts(db: Session, skip: int = 0, limit: int = 100):

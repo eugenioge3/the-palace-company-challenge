@@ -1,68 +1,96 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 import sys
+import time
 
-print("Iniciando el proceso de ingesta de datos (modelo Muchos-a-Muchos)...")
+print("Iniciando el proceso de ingesta de datos (modelo Many-to-Many)...")
 
+# --- 1. Configuración y Lógica de Reintentos ---
 DATABASE_URL = "postgresql://user:password@db:5432/techtest_db"
-try:
-    engine = create_engine(DATABASE_URL)
-    # Usamos engine.begin() para asegurar que la transacción se guarde (COMMIT) al final
-    with engine.begin() as connection:
-        print("Conexión a la base de datos establecida exitosamente.")
+MAX_RETRIES = 15
+RETRY_DELAY_SECONDS = 3
+retry_count = 0
 
-        df = pd.read_csv('sample.csv')
-        df.columns = df.columns.str.strip()
+engine = create_engine(DATABASE_URL)
 
-        df['state'] = df['state'].str.strip().str.upper()
-        valid_states_mask = df['state'].str.match(r'^[A-Z]{2}$', na=False)
-        df.loc[~valid_states_mask, 'state'] = None
-        
-        df.dropna(subset=['state', 'email', 'first_name', 'last_name'], inplace=True)
-        print(f"Archivo CSV leído y validado. {len(df)} filas válidas.")
+while retry_count < MAX_RETRIES:
+    try:
+        # Usamos engine.begin() para una conexión transaccional.
+        # Si este bloque se completa, los cambios se guardan (COMMIT).
+        # Si falla, todo se deshace (ROLLBACK).
+        with engine.begin() as connection:
+            print(f"\nConexión a la base de datos establecida exitosamente.")
 
-        unique_departments = df['department'].dropna().unique()
-        departments_df = pd.DataFrame(unique_departments, columns=['name'])
-        if not departments_df.empty:
-            departments_df.to_sql('temp_departments', connection, if_exists='replace', index=False)
-            connection.execute(text("INSERT INTO departments (name) SELECT name FROM temp_departments ON CONFLICT (name) DO NOTHING;"))
-        print(f"{len(departments_df)} departamentos únicos procesados.")
+            # --- 2. Lectura y Limpieza de Datos ---
+            df = pd.read_csv('sample.csv')
+            df.columns = df.columns.str.strip()
 
-        contacts_df = df.drop_duplicates(subset=['email'], keep='first').drop(columns=['department'])
-        contacts_df.to_sql('temp_contacts', connection, if_exists='replace', index=False)
-        connection.execute(text("""
-            INSERT INTO contacts (first_name, last_name, company_name, email, address, city, state, zip, phone1, phone2)
-            SELECT first_name, last_name, company_name, email, address, city, state, zip, phone1, phone2 FROM temp_contacts
-            ON CONFLICT (email) DO UPDATE SET
-                first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name, company_name = EXCLUDED.company_name,
-                address = EXCLUDED.address, city = EXCLUDED.city, state = EXCLUDED.state, zip = EXCLUDED.zip,
-                phone1 = EXCLUDED.phone1, phone2 = EXCLUDED.phone2;
-        """))
-        print(f"{len(contacts_df)} contactos únicos insertados/actualizados.")
+            # Validación de 'state'
+            df['state'] = df['state'].str.strip().str.upper()
+            valid_states_mask = df['state'].str.match(r'^[A-Z]{2}$', na=False)
+            df.loc[~valid_states_mask, 'state'] = None
+            
+            df.dropna(subset=['state', 'email', 'first_name', 'last_name'], inplace=True)
+            print(f"Archivo CSV leído y validado. {len(df)} filas válidas para procesar.")
 
-        contacts_map = pd.read_sql(text("SELECT id, email FROM contacts"), connection).set_index('email')['id'].to_dict()
-        departments_map = pd.read_sql(text("SELECT id, name FROM departments"), connection).set_index('name')['id'].to_dict()
+            # --- 3. Procesar Departamentos Únicos ---
+            unique_departments = df['department'].dropna().unique()
+            departments_df = pd.DataFrame(unique_departments, columns=['name'])
+            if not departments_df.empty:
+                departments_df.to_sql('temp_departments', connection, if_exists='replace', index=False)
+                connection.execute(text("INSERT INTO departments (name) SELECT name FROM temp_departments ON CONFLICT (name) DO NOTHING;"))
+            print(f"{len(departments_df)} departamentos únicos procesados.")
 
-        associations = []
-        for _, row in df.dropna(subset=['department']).iterrows():
-            if row['email'] in contacts_map and row['department'] in departments_map:
-                associations.append({
-                    'contact_id': contacts_map.get(row['email']),
-                    'department_id': departments_map.get(row['department'])
-                })
-        
-        if associations:
-            assoc_df = pd.DataFrame(associations).drop_duplicates()
-            assoc_df.to_sql('temp_assoc', connection, if_exists='replace', index=False)
+            # --- 4. Procesar Contactos Únicos ---
+            contacts_df = df.drop_duplicates(subset=['email'], keep='first').drop(columns=['department'])
+            contacts_df.to_sql('temp_contacts', connection, if_exists='replace', index=False)
             connection.execute(text("""
-                INSERT INTO contact_department_association (contact_id, department_id)
-                SELECT contact_id, department_id FROM temp_assoc
-                ON CONFLICT (contact_id, department_id) DO NOTHING;
+                INSERT INTO contacts (first_name, last_name, company_name, email, address, city, state, zip, phone1, phone2)
+                SELECT first_name, last_name, company_name, email, address, city, state, zip, phone1, phone2 FROM temp_contacts
+                ON CONFLICT (email) DO UPDATE SET
+                    first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name, company_name = EXCLUDED.company_name,
+                    address = EXCLUDED.address, city = EXCLUDED.city, state = EXCLUDED.state, zip = EXCLUDED.zip,
+                    phone1 = EXCLUDED.phone1, phone2 = EXCLUDED.phone2;
             """))
-        print(f"{len(associations)} asociaciones contacto-departamento procesadas.")
+            print(f"{len(contacts_df)} contactos únicos insertados/actualizados.")
 
-except Exception as e:
-    print(f"Ocurrió un error: {e}")
+            # --- 5. Crear las Asociaciones Many-to-Many ---
+            contacts_map = pd.read_sql(text("SELECT id, email FROM contacts"), connection).set_index('email')['id'].to_dict()
+            departments_map = pd.read_sql(text("SELECT id, name FROM departments"), connection).set_index('name')['id'].to_dict()
+
+            associations = []
+            for _, row in df.dropna(subset=['department']).iterrows():
+                if row['email'] in contacts_map and row['department'] in departments_map:
+                    associations.append({
+                        'contact_id': contacts_map.get(row['email']),
+                        'department_id': departments_map.get(row['department'])
+                    })
+            
+            if associations:
+                assoc_df = pd.DataFrame(associations).drop_duplicates()
+                assoc_df.to_sql('temp_assoc', connection, if_exists='replace', index=False)
+                connection.execute(text("""
+                    INSERT INTO contact_department_association (contact_id, department_id)
+                    SELECT contact_id, department_id FROM temp_assoc
+                    ON CONFLICT (contact_id, department_id) DO NOTHING;
+                """))
+            print(f"{len(associations)} asociaciones contacto-departamento procesadas.")
+
+            break
+
+    except OperationalError:
+        retry_count += 1
+        print(f"La base de datos no está lista (intento {retry_count}/{MAX_RETRIES}). Reintentando en {RETRY_DELAY_SECONDS} segundos...")
+        time.sleep(RETRY_DELAY_SECONDS)
+    except Exception as e:
+        print(f"Ocurrió un error inesperado durante la ingesta: {e}")
+        sys.exit(1)
+
+# --- 6. Verificación Final ---
+if retry_count == MAX_RETRIES:
+    print("\nNo se pudo establecer conexión con la base de datos después de varios intentos. Abortando.")
+    print("Posibles causas: el contenedor 'db' no está corriendo o la API (que crea las tablas) no ha arrancado correctamente.")
     sys.exit(1)
 
-print("¡Proceso de ingesta completado exitosamente!")
+print("\n¡Proceso de ingesta completado exitosamente!")
