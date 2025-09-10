@@ -60,7 +60,7 @@ Para verificar la integridad y el correcto funcionamiento de la API, puedes ejec
   ./test.sh
   ```
 
-![Unit Tests](./docs/images/05-unit-tests.png)
+![Unit Tests](./docs/images/05-unit-tests.PNG)
 
 ### 4. Detener el Entorno
 
@@ -81,29 +81,29 @@ Una vez que el entorno está corriendo y los datos han sido cargados, puedes int
 
 Obtén una lista paginada de todos los contactos.
 
-![Get Contacts](./docs/images/01-get-contacts.png)
+![Get Contacts](./docs/images/01-get-contacts.PNG)
 
 ### 2. Crear un Nuevo Contacto (POST /contacts/)
 
 Añade un nuevo contacto a la base de datos. La API es capaz de crear nuevos departamentos sobre la marcha si no existen.
 
-![Create Contact 1](./docs/images/02-1-create-contact.png)
+![Create Contact 1](./docs/images/02-1-create-contact.PNG)
 
-![Create Contact 2](./docs/images/02-2-create-contact.png)
+![Create Contact 2](./docs/images/02-2-create-contact.PNG)
 
 ### 3. Leer un Contacto Específico (GET /contacts/{contact_id})
 
 Obtén los detalles de un solo contacto usando su ID.
 
-![Get Contact by ID](./docs/images/03-get-contact-by-id.png)
+![Get Contact by ID](./docs/images/03-get-contact-by-id.PNG)
 
 ### 4. Actualizar un Contacto (PUT /contacts/{contact_id})
 
 Modifica los datos de un contacto existente.
 
-![Update Contact 1](./docs/images/04-1-put-contact.png)
+![Update Contact 1](./docs/images/04-1-put-contact.PNG)
 
-![Update Contact 2](./docs/images/04-2-put-contact.png)
+![Update Contact 2](./docs/images/04-2-put-contact.PNG)
 
 ## Decisiones de Diseño y Mejoras Futuras
 
