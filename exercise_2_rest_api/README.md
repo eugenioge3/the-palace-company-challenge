@@ -78,7 +78,7 @@ Resultado esperado:
 
 ## Cómo Probar la API (Swagger UI)
 
-Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador. Para cada uno, da click en "Try it out" y llena los campos necesarios.
+Una vez que el entorno está corriendo y los datos han sido cargados, puedes interactuar con la API directamente desde tu navegador. **Verifica que estés en el request correcto**, ya que FastAPI genera el esquema/orden. Para cada uno, da click en "Try it out", llena los campos necesarios, y click en "Execute".
 
 **Accede a:** http://localhost:8000/docs
 
