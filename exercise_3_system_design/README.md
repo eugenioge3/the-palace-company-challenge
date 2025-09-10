@@ -1,4 +1,4 @@
-# 🏨 Propuesta de Arquitectura Cloud para Plataforma de Reservas Hoteleras
+# Propuesta de Arquitectura Cloud para Plataforma de Reservas Hoteleras
 
 ## 1. Resumen Ejecutivo
 
@@ -6,12 +6,12 @@ Este documento describe una arquitectura de microservicios nativa de la nube, ut
 
 ## 2. Principios de Diseño
 
-*   **☁️ Nube Nativa:** Uso de servicios gestionados de AWS para minimizar la carga operativa.
-*   **🧩 Desacoplamiento:** Microservicios independientes que se pueden desarrollar, desplegar y escalar de forma autónoma.
-*   **🚀 Escalabilidad y Elasticidad:** Infraestructura que se adapta automáticamente a la demanda, optimizando costos.
-*   **🔒 Seguridad por Diseño:** Seguridad integrada en cada capa, desde la red hasta la aplicación.
-*   **📊 Observabilidad:** Monitoreo y trazabilidad centralizados para una operación proactiva del sistema.
-*   **🤖 Inteligencia Integrada:** Uso proactivo de IA para mejorar la experiencia del cliente y las decisiones de negocio.
+*   **Nube Nativa:** Uso de servicios gestionados de AWS para minimizar la carga operativa.
+*   **Desacoplamiento:** Microservicios independientes que se pueden desarrollar, desplegar y escalar de forma autónoma.
+*   **Escalabilidad y Elasticidad:** Infraestructura que se adapta automáticamente a la demanda, optimizando costos.
+*   **Seguridad por Diseño:** Seguridad integrada en cada capa, desde la red hasta la aplicación.
+*   **Observabilidad:** Monitoreo y trazabilidad centralizados para una operación proactiva del sistema.
+*   **Inteligencia Integrada:** Uso proactivo de IA para mejorar la experiencia del cliente y las decisiones de negocio.
 
 ## 3. Diagrama de la Arquitectura Propuesta
 
@@ -32,21 +32,21 @@ El siguiente diagrama ilustra la interacción entre los diferentes componentes d
 ### API y Lógica de Negocio (Backend)
 *   **Amazon API Gateway:** Punto de entrada único y seguro para todas las peticiones. Gestiona la autenticación, autorización y enrutamiento a los microservicios.
 *   **AWS Fargate (con ECS):** Motor de cómputo serverless para ejecutar nuestros microservicios en contenedores Docker sin gestionar servidores.
-    *   **📦 Servicio de Búsqueda:** Potenciado por OpenSearch, permite búsquedas complejas y semánticas.
-    *   **🖼️ Servicio de Visualización:** Entrega los datos de los hoteles (descripciones, precios) desde Aurora y las imágenes desde S3/CloudFront.
-    *   **👤 Servicio para Huéspedes:** Gestiona perfiles, favoritos e historial de navegación usando Aurora y ElastiCache para acceso rápido.
-    *   **💳 Servicio de Pagos:** Procesa transacciones de forma segura, integrándose con servicios de pago y registrando en Aurora.
+    *   **Servicio de Búsqueda:** Potenciado por OpenSearch, permite búsquedas complejas y semánticas.
+    *   **Servicio de Visualización:** Entrega los datos de los hoteles (descripciones, precios) desde Aurora y las imágenes desde S3/CloudFront.
+    *   **Servicio para Huéspedes:** Gestiona perfiles, favoritos e historial de navegación usando Aurora y ElastiCache para acceso rápido.
+    *   **Servicio de Pagos:** Procesa transacciones de forma segura, integrándose con servicios de pago y registrando en Aurora.
 
 ### Capa de Datos (Data Layer)
-*   **💾 Amazon Aurora (Global Database):** Base de datos relacional principal para datos transaccionales (reservas, usuarios). Garantiza lecturas rápidas para usuarios internacionales.
-*   **⚡ Amazon ElastiCache (Redis):** Caché en memoria para datos de acceso frecuente como sesiones y favoritos, reduciendo la carga en la base de datos principal.
-*   **🔍 Amazon OpenSearch Service:** Motor de búsqueda para indexar los datos de los hoteles y habilitar búsquedas full-text, geolocalizadas y semánticas.
+*   **Amazon Aurora (Global Database):** Base de datos relacional principal para datos transaccionales (reservas, usuarios). Garantiza lecturas rápidas para usuarios internacionales.
+*   **Amazon ElastiCache (Redis):** Caché en memoria para datos de acceso frecuente como sesiones y favoritos, reduciendo la carga en la base de datos principal.
+*   **Amazon OpenSearch Service:** Motor de búsqueda para indexar los datos de los hoteles y habilitar búsquedas full-text, geolocalizadas y semánticas.
     *   **Flujo de Datos:** Nota importante: OpenSearch se alimenta de los datos de Aurora a través de un **proceso de sincronización en segundo plano** (ej. usando AWS Lambda gatillado por eventos de la base de datos). No se conecta directamente durante la petición del usuario, garantizando así un rendimiento óptimo en las búsquedas.
 
-### Capa de Inteligencia Artificial (Factor WOW)
-*   **🧠 Amazon Personalize:** Ofrece recomendaciones de hoteles personalizadas ("Usuarios como tú también vieron...") basadas en el comportamiento del usuario.
-*   **💰 Amazon SageMaker:** Despliega modelos de Machine Learning para implementar *Dynamic Pricing*, ajustando los precios en tiempo real según la demanda y otras variables.
-*   **💬 Amazon Lex + Bedrock:** Potencia un chatbot de asistencia 24/7 que responde preguntas frecuentes y ayuda en el proceso de reserva con un lenguaje natural y fluido.
+### Capa de Inteligencia Artificial
+*   **Amazon Personalize:** Ofrece recomendaciones de hoteles personalizadas ("Usuarios como tú también vieron...") basadas en el comportamiento del usuario.
+*   **Amazon SageMaker:** Despliega modelos de Machine Learning para implementar *Dynamic Pricing*, ajustando los precios en tiempo real según la demanda y otras variables.
+*   **Amazon Lex + Bedrock:** Potencia un chatbot de asistencia 24/7 que responde preguntas frecuentes y ayuda en el proceso de reserva con un lenguaje natural y fluido.
 
 ## 5. Monitoreo, Alertas y Trazabilidad
 
