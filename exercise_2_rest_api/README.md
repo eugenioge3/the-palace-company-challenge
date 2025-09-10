@@ -93,7 +93,6 @@ Obtén una lista paginada de todos los contactos.
 Añade un nuevo contacto a la base de datos. La API es capaz de crear nuevos departamentos sobre la marcha si no existen.
 
 ![Create Contact 1](./docs/images/02-1-create-contact.PNG)
-
 ![Create Contact 2](./docs/images/02-2-create-contact.PNG)
 
 ### 3. Leer un Contacto Específico (GET /contacts/{contact_id})
@@ -107,7 +106,6 @@ Obtén los detalles de un solo contacto usando su ID.
 Modifica los datos de un contacto existente.
 
 ![Update Contact 1](./docs/images/04-1-put-contact.PNG)
-
 ![Update Contact 2](./docs/images/04-2-put-contact.PNG)
 
 
