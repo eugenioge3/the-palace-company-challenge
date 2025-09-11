@@ -1,7 +1,10 @@
 services:
+#1. Base de datos
   db_mysql:
     image: mysql:8.0
-    env_file: .env 
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}   
     ports:
       - "3307:3306"
     volumes:
@@ -12,6 +15,7 @@ services:
       timeout: 5s
       retries: 5
 
+#2. App Dagster
   dagster_app:
     build:
       context: .
@@ -24,6 +28,7 @@ services:
       db_mysql:
         condition: service_healthy
 
+#3. Interfaz Web
   dagit:
     build: .
     env_file: .env 
@@ -36,6 +41,7 @@ services:
     depends_on:
       - dagster_app
 
+#4. Procesos en segundo plano de Dagster
   dagster_daemon:
     build: .
     env_file: .env 
@@ -46,5 +52,6 @@ services:
     depends_on:
       - dagster_app
 
+#5. Volumen para MySQL
 volumes:
   mysql_data:
