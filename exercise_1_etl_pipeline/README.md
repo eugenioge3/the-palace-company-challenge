@@ -22,7 +22,7 @@ El proceso se puede resumir en los siguientes pasos:
 - **Librerías Clave:** Pandas, NumPy, SQLAlchemy
 
 ## Querys utilizados para generar DB y tablas
-*Nota: Los links te llevan a las lineas donde se implementan
+*Nota: Los links llevan a las lineas donde se implementan
 
 1. [Creación de **user_relationships**](https://github.com/eugenioge3/the-palace-company-challenge/blob/15eede17cb8b4f0feb23fa9ef3a4ca8e20dedc2d/exercise_1_etl_pipeline/project_etl/assets.py#L17-L23)
 ```sql
