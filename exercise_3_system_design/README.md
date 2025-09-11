@@ -1,10 +1,8 @@
 # Propuesta de Arquitectura Cloud para Plataforma de Reservas Hoteleras
 
-## 1. Resumen Ejecutivo
-
 Este documento describe una arquitectura de microservicios nativa de la nube, utilizando **Amazon Web Services (AWS)**, para la migración y modernización del sitio web de gestión de reservas hoteleras. La arquitectura está diseñada para ser **globalmente rápida**, **segura**, **escalable**, **operativamente robusta** y estar enriquecida con capacidades de **Inteligencia Artificial** para ofrecer una experiencia de usuario superior y optimizar los ingresos del negocio.
 
-## 2. Principios de Diseño
+## Principios de Diseño
 
 *   **Nube Nativa:** Uso de servicios gestionados de AWS para minimizar la carga operativa.
 *   **Desacoplamiento:** Microservicios independientes que se pueden desarrollar, desplegar y escalar de forma autónoma.
@@ -13,7 +11,7 @@ Este documento describe una arquitectura de microservicios nativa de la nube, ut
 *   **Observabilidad:** Monitoreo y trazabilidad centralizados para una operación proactiva del sistema.
 *   **Inteligencia Integrada:** Uso proactivo de IA para mejorar la experiencia del cliente y las decisiones de negocio.
 
-## 3. Diagrama de la Arquitectura Propuesta
+## Diagrama de la Arquitectura Propuesta
 
 El siguiente diagrama ilustra la interacción entre los diferentes componentes de la solución, desde la entrada del usuario hasta las capas de datos, monitoreo e inteligencia artificial.
 
@@ -21,13 +19,13 @@ El siguiente diagrama ilustra la interacción entre los diferentes componentes d
 
 *   **Nota**: Este diagrama fue generado utilizando la librería `diagrams` de Python, lo que permite versionar la arquitectura como código (`Diagrams as Code`).
 
-## 4. Desglose de Componentes
+## Desglose de Componentes
 
 ### Capa de Presentación y Entrega (Frontend & Delivery)
 *   **Amazon S3:** Aloja los activos estáticos del sitio web (HTML, CSS, JS).
     *   **Optimización de Costos:** Se utilizarán políticas de ciclo de vida para optimizar costos, moviendo automáticamente los activos menos accedidos (ej. fotos de hoteles antiguos o facturas pasadas) a clases de almacenamiento más económicas como `S3 Standard-IA` (Acceso Infrecuente) o `S3 Glacier` (Archivo).
 *   **Amazon CloudFront (CDN):** Distribuye el contenido globalmente, almacenándolo en caché cerca de los usuarios para una latencia mínima.
-*   **AWS WAF & Shield:** Protege la aplicación contra ataques web comunes (Inyección SQL, XSS) a nivel de borde.
+*   **AWS WAF & Shield:** Protege la aplicación contra ataques web comunes (Inyección SQL, XSS).
 
 ### API y Lógica de Negocio (Backend)
 *   **Amazon API Gateway:** Punto de entrada único y seguro para todas las peticiones. Gestiona la autenticación, autorización y enrutamiento a los microservicios.
@@ -36,11 +34,12 @@ El siguiente diagrama ilustra la interacción entre los diferentes componentes d
     *   **Servicio de Visualización:** Entrega los datos de los hoteles (descripciones, precios) desde Aurora y las imágenes desde S3/CloudFront.
     *   **Servicio para Huéspedes:** Gestiona perfiles, favoritos e historial de navegación usando Aurora y ElastiCache para acceso rápido.
     *   **Servicio de Pagos:** Procesa transacciones de forma segura, integrándose con servicios de pago y registrando en Aurora.
+* **Nota importante:** Debido a que los servicios están desacoplados y orquestados a través de **API Gateway**, no es necesario incluir *load balancers* tradicionales en esta arquitectura. Esto simplifica la operación y reduce costos.
 
 ### Capa de Datos (Data Layer)
-*   **Amazon Aurora (Global Database):** Base de datos relacional principal para datos transaccionales (reservas, usuarios). Garantiza lecturas rápidas para usuarios internacionales.
-*   **Amazon ElastiCache (Redis):** Caché en memoria para datos de acceso frecuente como sesiones y favoritos, reduciendo la carga en la base de datos principal.
-*   **Amazon OpenSearch Service:** Motor de búsqueda para indexar los datos de los hoteles y habilitar búsquedas full-text, geolocalizadas y semánticas.
+*   **Amazon Aurora (Global Database):** Base de datos relacional principal para datos transaccionales (reservas, usuarios). Garantiza lecturas rápidas para usuarios internacionales y está replicada en múltiples regiones para alta disponibilidad y continuidad del negocio.
+*   **Amazon ElastiCache (Redis):** Caché en memoria para datos de acceso frecuente como sesiones y favoritos, reduciendo la carga en la base de datos principal. Implementado en varias regiones para ofrecer baja latencia a nivel global.
+*   **Amazon OpenSearch Service:** Motor de búsqueda para indexar los datos de los hoteles y habilitar búsquedas full-text, geolocalizadas y semánticas. La indexación también se distribuye en múltiples regiones para resiliencia y cercanía a los usuarios.
     *   **Flujo de Datos:** Nota importante: OpenSearch se alimenta de los datos de Aurora a través de un **proceso de sincronización en segundo plano** (ej. usando AWS Lambda gatillado por eventos de la base de datos). No se conecta directamente durante la petición del usuario, garantizando así un rendimiento óptimo en las búsquedas.
 
 ### Capa de Inteligencia Artificial
@@ -48,7 +47,7 @@ El siguiente diagrama ilustra la interacción entre los diferentes componentes d
 *   **Amazon SageMaker:** Despliega modelos de Machine Learning para implementar *Dynamic Pricing*, ajustando los precios en tiempo real según la demanda y otras variables.
 *   **Amazon Lex + Bedrock:** Potencia un chatbot de asistencia 24/7 que responde preguntas frecuentes y ayuda en el proceso de reserva con un lenguaje natural y fluido.
 
-## 5. Monitoreo, Alertas y Trazabilidad
+## Monitoreo, Alertas y Trazabilidad
 
 Una arquitectura robusta requiere una visibilidad completa de su estado y rendimiento. **Amazon CloudWatch** será el pilar central de nuestra estrategia de observabilidad.
 *   **Logs Centralizados (CloudWatch Logs):** Todos los microservicios ejecutándose en Fargate, así como otras funciones (Lambda) y servicios, enviarán sus logs a CloudWatch. Esto crea un repositorio centralizado para facilitar la depuración de errores y el análisis de comportamiento.
@@ -58,7 +57,7 @@ Una arquitectura robusta requiere una visibilidad completa de su estado y rendim
     *   Alerta si el uso de CPU de un servicio se mantiene por encima del 80% durante más de 5 minutos.
     *   Alerta si la latencia de la base de datos aumenta significativamente.
 
-## 6. Consideraciones de Costos
+## Consideraciones de Costos
 
 La arquitectura está diseñada para ser costo-eficiente, apalancándose en el modelo de pago por uso de la nube.
 *   **Costos Variables (Pay-as-you-go):** La mayoría de los servicios de cómputo como **AWS Fargate**, **API Gateway** y **AWS Lambda** son serverless. Esto significa que solo se paga por el tiempo de cómputo que se utiliza, eliminando el costo de servidores inactivos y adaptándose perfectamente a la demanda variable del negocio.

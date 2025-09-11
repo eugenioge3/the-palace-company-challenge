@@ -1,16 +1,15 @@
 # Pipeline de Datos de Relaciones con Dagster
 
-## Descripción del Proyecto
-
 Este proyecto implementa un pipeline de datos ETL (Extracción, Transformación y Carga) utilizando **Dagster** para cumplir con la prueba técnica de Data Engineer Manager.
 
 El objetivo es procesar una matriz de relaciones entre personas, proporcionada en un archivo Excel, y cargarla en una base de datos MySQL. El pipeline está diseñado para ser robusto y automatizado, ejecutándose diariamente para reflejar las actualizaciones enviadas por el equipo de datos.
 
 El proceso se puede resumir en los siguientes pasos:
 
-1. **Extracción:** Lee los datos de dos hojas de un archivo `relaciones.xlsx`: una matriz de adyacencia y una lista de actores. **Asegurate de que el archivo tenga el nombre correcto**
+1. **Extracción:** Lee los datos de dos hojas de un archivo `relaciones.xlsx`: una matriz de adyacencia y una lista de actores.
 2. **Transformación:** Limpia y procesa los datos para convertirlos en tablas relacionales normalizadas. La lógica está diseñada para ser resiliente a inconsistencias comunes en archivos Excel, como filas vacías, datos dispersos o no contiguos.
-3. **Carga:** Carga los datos limpios en tablas (`user_relationships`, `actors`) en una base de datos MySQL. Adicionalmente, crea una vista (`v_actor_relationships`) para facilitar la consulta de los datos de forma legible.
+3. **Carga:** Carga los datos limpios en tablas (`user_relationships`, `actors`) en una base de datos MySQL. En este paso, la matriz de relaciones se transforma en una tabla relacional, lo cual facilita las consultas SQL, mejora la escalabilidad (al crecer solo en filas y no en dimensiones cuadradas) y hace que la estructura sea más mantenible. Adicionalmente, se crea una vista (`v_actor_relationships`) para facilitar la consulta de los datos de forma legible.
+
 4. **Orquestación:** Todo el proceso está orquestado por Dagster, con una programación para ejecutarse cada 24 horas.
 
 ## Arquitectura y Tecnologías Utilizadas
@@ -81,39 +80,39 @@ El proceso se puede resumir en los siguientes pasos:
 2. Organización de Datos
  - 2.1 [user_relationships](https://github.com/eugenioge3/the-palace-company-challenge/blob/15eede17cb8b4f0feb23fa9ef3a4ca8e20dedc2d/exercise_1_etl_pipeline/project_etl/assets.py#L37-L55)
 ```python
-        # Extrae la lista de todos los IDs numéricos válidos de la primera columna (columna A).
-        all_ids = pd.to_numeric(df_raw.iloc[2:, 0], errors='coerce').dropna().astype(int)
+    # Extrae la lista de todos los IDs numéricos válidos de la primera columna (columna A).
+    all_ids = pd.to_numeric(df_raw.iloc[2:, 0], errors='coerce').dropna().astype(int)
 
-        # Extrae solo el bloque de datos numéricos (desde la celda C3 en adelante).
-        data_block = df_raw.iloc[2:, 2:].copy()
+    # Extrae solo el bloque de datos numéricos (desde la celda C3 en adelante).
+    data_block = df_raw.iloc[2:, 2:].copy()
         
-        # Crea una matriz cuadrada vacía, usando all_ids para el índice y las columnas.
-        df_matrix = pd.DataFrame(index=all_ids, columns=all_ids)
+    # Crea una matriz cuadrada vacía, usando all_ids para el índice y las columnas.
+    df_matrix = pd.DataFrame(index=all_ids, columns=all_ids)
         
-        # Rellena la matriz cuadrada con los datos del Excel.
-        # Recorta los datos y los índices para que coincidan en tamaño
-        valid_rows = all_ids[:len(data_block)]
-        valid_cols = all_ids[:len(data_block.columns)]
+    # Rellena la matriz cuadrada con los datos del Excel.
+    # Recorta los datos y los índices para que coincidan en tamaño
+    valid_rows = all_ids[:len(data_block)]
+    valid_cols = all_ids[:len(data_block.columns)]
         
-        # Asigna los datos a la subsección correspondiente de la matriz cuadrada.
-        df_matrix.loc[valid_rows, valid_cols] = data_block.values
+    # Asigna los datos a la subsección correspondiente de la matriz cuadrada.
+    df_matrix.loc[valid_rows, valid_cols] = data_block.values
 
-        # Convierte toda la matriz a tipo numérico para estandarizarla.
-        df_matrix = df_matrix.apply(pd.to_numeric, errors='coerce')
+    # Convierte toda la matriz a tipo numérico para estandarizarla.
+    df_matrix = df_matrix.apply(pd.to_numeric, errors='coerce')
 ```
 
  - 2.2 [actors](https://github.com/eugenioge3/the-palace-company-challenge/blob/15eede17cb8b4f0feb23fa9ef3a4ca8e20dedc2d/exercise_1_etl_pipeline/project_etl/assets.py#L123-L132)
 ```python
-         # Nombramos las columnas
-        df.columns = ["letter_code", "numeric_id", "actor_name"]
+    # Nombramos las columnas
+    df.columns = ["letter_code", "numeric_id", "actor_name"]
         
-        # Limpieza de datos
-        df.dropna(how="all", inplace=True) # Eliminar filas completamente vacías
-        df['numeric_id'] = df['numeric_id'].astype(int) # Asegurar que el ID es un número entero
+    # Limpieza de datos
+    df.dropna(how="all", inplace=True) # Eliminar filas completamente vacías
+    df['numeric_id'] = df['numeric_id'].astype(int) # Asegurar que el ID es un número entero
 
-        # Convierte todos los códigos a mayúsculas para asegurar consistencia
-        df['letter_code'] = df['letter_code'].str.upper()
-        context.log.info("Se estandarizaron los 'letter_code' a mayúsculas.")
+    # Convierte todos los códigos a mayúsculas para asegurar consistencia
+    df['letter_code'] = df['letter_code'].str.upper()
+    context.log.info("Se estandarizaron los 'letter_code' a mayúsculas.")
 ```
 
 
@@ -135,14 +134,14 @@ Sigue estos pasos para configurar y ejecutar el pipeline de ETL en tu entorno lo
 
 ### Prerrequisitos
 
-- Docker y Docker Compose instalados.
-   (**El servicio de Docker Desktop debe estar corriendo**)
+- Docker y Docker Compose instalados. ***El servicio de Docker Desktop debe estar corriendo**
+- Asegurate de que el archivo tenga el nombre correcto y se encuentre en la ubicación correcta **/data/relaciones.xlsx**
 
 ### 1. Configuración del Entorno
 
 Este proyecto incluye un archivo .env que incluye variables de entorno para gestionar las credenciales de la base de datos. 
 **Exponer un archivo .env con credenciales no es buena practica de seguridad** sin embargo, por practicidad se decidió dejar este archivo.
-Algunas alternativas de gestión de credenciales como GitHub Secrets o AWS Secrets Manager.
+Existen alternativas de gestión de credenciales como GitHub Secrets o AWS Secrets Manager.
 
 ### 2. Levantar los Servicios
 
@@ -208,7 +207,7 @@ ORDER BY person_a_id, person_b_id;
 Para activar la ejecución automática cada 24 horas:
 
 1. Ve a la pestaña "Schedules" en la interfaz de Dagster
-2. Busca "daily_relationships_etl"
+2. Busca "daily_relationships_update_schedule"
 3. Activa el toggle para habilitar la ejecución automática
 4. El pipeline se ejecutará diariamente a las 0:00 hrs UTC
 
@@ -225,6 +224,7 @@ Los archivos Excel son una fuente de datos notoriamente frágil. Algunos de los 
 - **Datos Dispersos:** El pipeline está diseñado para manejar escenarios donde se añaden datos de forma no contigua (ej., se añade información para el ID 25 sin tener datos para los IDs 19-24).
 - **Filas/Columnas Vacías:** La lógica de lectura ignora las filas y columnas completamente en blanco, que a menudo actúan como terminadores prematuros en librerías como Pandas.
 - **Inconsistencias de Tipo:** Todo el bloque de datos de la matriz se convierte a un tipo numérico uniforme para evitar errores de comparación (1.0 vs 1 vs "1").
+- **Limitaciones Estructurales del Archivo:** Si la ubicación de la tabla dentro del archivo cambia (por ejemplo, se insertan filas/columnas al inicio, se desplaza el rango de datos o se renombra la hoja de cálculo), el pipeline puede fallar o leer información incorrecta. Esto se debe a que las rutas de acceso a los datos (coordenadas de celdas, nombres de hoja) son sensibles a modificaciones estructurales en el archivo fuente.
 
 ### 2. Decisión de Usar IDs Numéricos como Clave Principal
 
