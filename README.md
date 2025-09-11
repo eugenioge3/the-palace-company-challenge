@@ -25,3 +25,4 @@ Aunque este repositorio es un challenge y no contempla la implementación comple
 - **Costos:** La eficiencia en el uso de recursos y servicios en la nube es clave para optimizar costos operativos.
 - **Compatibilidad con servicios y tecnologías existentes:** Considerar la integración con otros sistemas y la facilidad de mantenimiento a largo plazo.
 - **Seguridad y cumplimiento:** Aunque no se implementa en este desafío, es fundamental pensar en la protección de datos y cumplimiento de regulaciones en producción.
+- **Alertas y Notificaciones:** Implementar alertas y notificaciones por email, Slack u otros servicios es fundamental para la rápida solución de los problemas.
