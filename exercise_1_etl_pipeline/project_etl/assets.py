@@ -184,4 +184,3 @@ def actor_relationships_view(context, user_relationships, actors):
         conn.execute(text(create_view_query))
     context.log.info("Vista creada exitosamente.")
 
-

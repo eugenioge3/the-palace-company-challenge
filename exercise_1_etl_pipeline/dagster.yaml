@@ -1,0 +1,14 @@
+telemetry:
+  enabled: false
+
+instance_class:
+  module: dagster_mysql
+  class: MySQLDagsterInstance
+
+storage:
+  mysql:
+    hostname: db_mysql
+    port: 3306
+    db: dagster_storage
+    username: "root"
+    password: "password"

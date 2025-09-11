@@ -1,4 +1,5 @@
-exercise_1_etl_pipeline/dagster_home/
+exercise_1_etl_pipeline/dagster_home/*
+!exercise_1_etl_pipeline/dagster_home/.gitkeep
 exercise_3_system_design/.venv/
 __pycache__/
 *.pyc

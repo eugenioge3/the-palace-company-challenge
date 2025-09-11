@@ -148,6 +148,9 @@ Algunas alternativas de gestión de credenciales como GitHub Secrets o AWS Secre
 
 Podemos levantar todos los servicios usando Docker Compose.
 
+**Navega hasta la raíz de este proyecto**, el directorio `exercise_1_etl_pipeline`. Todos los comandos deben ejecutarse desde esta ubicación.
+
+
 ```bash
 # Este comando construirá las imágenes y levantará los contenedores.
 docker-compose up --build
@@ -163,7 +166,7 @@ Abre tu navegador y ve a [http://localhost:3000](http://localhost:3000). Verás 
 
 #### Materializar los Datos
 
-Para ejecutar el pipeline completo, haz clic en el botón "View lineage" en la esquina superior derecha. Esto te llevará a ver el global asset lineage. 
+Para ejecutar el pipeline completo, ve a "Assets" en la parte superior, después haz clic en el botón "View lineage" en la esquina superior derecha. Esto te llevará a ver el global asset lineage. 
 
 ![Vista del Lineage](./docs/images/01-view-lineage.png)
 
@@ -180,6 +183,20 @@ Da click en la pestaña "Runs", esquina superior izquierda, donde podrás ver el
 #### Verificar el Resultado en la Base de Datos
 
 Una vez que la ejecución haya finalizado, los datos estarán en tu base de datos MySQL. Puedes conectarte con tu cliente SQL preferido (DBeaver, MySQL Workbench, etc.) y ejecutar una consulta para verificar los resultados. La vista `v_actor_relationships` es ideal para una revisión legible.
+
+1. Abrir MySQL Workbench: Inicia la aplicación. En la pantalla de bienvenida, haz clic en el icono + junto a "MySQL Connections" para crear una nueva conexión.
+2. Configurar la Conexión: Rellena los campos del formulario con los siguientes datos exactos:
+- Connection Name: Dagster Test Project (o cualquier nombre que prefieras).
+- Hostname: 127.0.0.1
+- Port: 3307
+- Username: root
+3. Probar la Conexión: Haz clic en el botón "Test Connection". Te pedirá la contraseña.
+- Introduce la contraseña: password
+- Puedes marcar la casilla "Save password in vault" para no tener que escribirla de nuevo.
+- Deberías ver una ventana emergente que dice "Successfully made the MySQL connection". Haz clic en "OK".
+4. Guardar y Abrir la Conexión: Haz clic en "OK" en la ventana de configuración para guardar la conexión. Ahora aparecerá en tu pantalla de inicio. Haz doble clic en ella para abrir el editor de SQL.
+5. Ejecutar la Query de Verificación: En la ventana del editor de SQL, escribe y ejecuta la siguiente consulta para ver los datos cargados por el pipeline:
+
 
 ```sql
 SELECT * FROM relationships_db.v_actor_relationships
