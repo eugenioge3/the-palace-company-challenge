@@ -236,15 +236,15 @@ El pipeline crea dos tablas principales y una vista:
 
 - **`actors`:** Almacena la relación entre el ID numérico, el código de letra y el nombre del actor.
 
-![Resultado de Query SQL](./docs/images/10-actors.png) 
+![Resultado de Query SQL](./docs/images/10-actors.PNG) 
 
 - **`user_relationships`:** Almacena los pares de IDs que tienen una relación.
 
-![Resultado de Query SQL](./docs/images/09-user_relationships.png)
+![Resultado de Query SQL](./docs/images/09-user_relationships.PNG)
 
 - **`v_actor_relationships`:** Una vista que une las dos tablas anteriores para presentar una visión legible de las relaciones.
 
-![Resultado de Query SQL](./docs/images/11-v_actor_relationships.png)
+![Resultado de Query SQL](./docs/images/11-v_actor_relationships.PNG)
 
 
 ## Punto Opcional y Mejoras Futuras
