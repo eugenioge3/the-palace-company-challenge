@@ -8,7 +8,7 @@ El objetivo es procesar una matriz de relaciones entre personas, proporcionada e
 
 El proceso se puede resumir en los siguientes pasos:
 
-1. **Extracción:** Lee los datos de dos hojas de un archivo `relaciones.xlsx`: una matriz de adyacencia y una lista de actores.
+1. **Extracción:** Lee los datos de dos hojas de un archivo `relaciones.xlsx`: una matriz de adyacencia y una lista de actores. **Asegurate de que el archivo tenga el nombre correcto**
 2. **Transformación:** Limpia y procesa los datos para convertirlos en tablas relacionales normalizadas. La lógica está diseñada para ser resiliente a inconsistencias comunes en archivos Excel, como filas vacías, datos dispersos o no contiguos.
 3. **Carga:** Carga los datos limpios en tablas (`user_relationships`, `actors`) en una base de datos MySQL. Adicionalmente, crea una vista (`v_actor_relationships`) para facilitar la consulta de los datos de forma legible.
 4. **Orquestación:** Todo el proceso está orquestado por Dagster, con una programación para ejecutarse cada 24 horas.
@@ -203,8 +203,6 @@ SELECT * FROM relationships_db.v_actor_relationships
 ORDER BY person_a_id, person_b_id;
 ```
 
-![Resultado de Query SQL](./docs/images/04-sql-query-result.png)
-
 ## Schedule
 
 Para activar la ejecución automática cada 24 horas:
@@ -213,6 +211,8 @@ Para activar la ejecución automática cada 24 horas:
 2. Busca "daily_relationships_etl"
 3. Activa el toggle para habilitar la ejecución automática
 4. El pipeline se ejecutará diariamente a las 0:00 hrs UTC
+
+![Schedule](./docs/images/05-schedule.png)
 
 ## Notas de Diseño y Decisiones Importantes
 
@@ -235,8 +235,17 @@ Durante el desarrollo, se identificó una inconsistencia en los códigos de letr
 El pipeline crea dos tablas principales y una vista:
 
 - **`actors`:** Almacena la relación entre el ID numérico, el código de letra y el nombre del actor.
+
+![Resultado de Query SQL](./docs/images/10-actors.png)
+
 - **`user_relationships`:** Almacena los pares de IDs que tienen una relación.
+
+![Resultado de Query SQL](./docs/images/09-user_relationships.png)
+
 - **`v_actor_relationships`:** Una vista que une las dos tablas anteriores para presentar una visión legible de las relaciones.
+
+![Resultado de Query SQL](./docs/images/11-v_actor_relationships.png)
+
 
 ## Punto Opcional y Mejoras Futuras
 
