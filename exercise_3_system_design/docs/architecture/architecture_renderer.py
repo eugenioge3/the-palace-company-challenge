@@ -6,7 +6,7 @@ from diagrams.aws.analytics import AmazonOpensearchService
 from diagrams.aws.storage import S3
 from diagrams.aws.security import WAF
 from diagrams.aws.ml import Personalize, Sagemaker, Lex
-from diagrams.aws.management import Cloudwatch # <-- 1. IMPORTAMOS CLOUDWATCH
+from diagrams.aws.management import Cloudwatch 
 from diagrams.onprem.client import User
 
 # Define el nombre del archivo de salida y la ruta relativa
@@ -34,7 +34,7 @@ with Diagram("Arquitectura Hotelera con IA", show=False, filename=output_filenam
             ]
         
         # Capa de Monitoreo
-        with Cluster("Monitoreo y Operaciones"): # <-- 2. AÑADIMOS UN CLUSTER PARA MONITOREO
+        with Cluster("Monitoreo y Operaciones"): 
             cw = Cloudwatch("CloudWatch\n(Logs, Métricas, Alertas)")
 
         # Conexiones principales
@@ -44,7 +44,7 @@ with Diagram("Arquitectura Hotelera con IA", show=False, filename=output_filenam
         api_gw >> Edge(label="/payment") >> services_group[3]
         
         # Conexión conceptual de monitoreo a los servicios
-        cw >> Edge(style="dotted", color="firebrick") >> services_group # <-- 3. CONECTAMOS CLOUDWATCH
+        cw >> Edge(style="dotted", color="firebrick") >> services_group 
 
         # Capa de Datos
         with Cluster("Capa de Datos"):
