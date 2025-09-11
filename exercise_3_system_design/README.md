@@ -17,7 +17,7 @@ El siguiente diagrama ilustra la interacción entre los diferentes componentes d
 
 ![Arquitectura Propuesta](docs/architecture/images/arquitectura_hotelera.png)
 
-*   **Nota**: Este diagrama fue generado utilizando la librería `diagrams` de Python, lo que permite versionar la arquitectura como código (`Diagrams as Code`).
+*   **Nota**: Este diagrama fue generado utilizando la librería `diagrams` de Python, lo que permite versionar la arquitectura como código (`Diagrams as Code`). El código fuente se encuentra [aquí](https://github.com/eugenioge3/the-palace-company-challenge/blob/main/exercise_3_system_design/docs/architecture/architecture_renderer.py)
 
 ## Desglose de Componentes
 
